@@ -1,127 +1,333 @@
-import os, json, tempfile
-from pathlib import Path
-from flask import Flask, request, jsonify, send_from_directory, send_file
-BASE=Path(__file__).resolve().parent
-app=Flask(__name__)
-try:
-    from pypdf import PdfReader
-except Exception:
-    PdfReader=None
-OPENAI_KEY=os.getenv("OPENAI_API_KEY","").strip()
-MODEL=os.getenv("OPENAI_MODEL","gpt-5.6-luna")
-LANG_NAMES={"Deutsch":"German","Serbisch":"Serbian","Bosnisch":"Bosnian","Kroatisch":"Croatian","Englisch":"English","Italienisch":"Italian","Albanisch":"Albanian","Polnisch":"Polish","Französisch":"French","Slowakisch":"Slovak","Rumänisch":"Romanian","Spanisch":"Spanish","Griechisch":"Greek","Ungarisch":"Hungarian","Tschechisch":"Czech","Mazedonisch":"Macedonian","Bulgarisch":"Bulgarian","Türkisch":"Turkish","Slowenisch":"Slovenian","Portugiesisch":"Portuguese"}
-SWISS_SOURCES={"Ausländerausweis verlängern":[("ch.ch – Ausländer in der Schweiz","https://www.ch.ch/de/auslaender-in-der-schweiz/")],"Führerausweis umtauschen":[("ch.ch – Führerausweis","https://www.ch.ch/de/fuehrerausweis/")],"In die Schweiz ziehen":[("ch.ch – Einreise und Aufenthalt","https://www.ch.ch/de/auswandern-und-in-die-schweiz-einwandern/einreise-und-aufenthalt-in-der-schweiz/")],"Arbeitsbewilligung":[("SEM – Arbeit","https://www.sem.admin.ch/sem/de/home/themen/arbeit.html")],"Familiennachzug":[("ch.ch – Familiennachzug","https://www.ch.ch/de/familie-und-partnerschaft/familiennachzug/")],"Bei der Gemeinde anmelden":[("ch.ch","https://www.ch.ch/")],"Krankenkasse":[("ch.ch – Krankenkasse","https://www.ch.ch/de/versicherungen-und-vorsorge/krankenkasse/")],"Steuererklärung":[("ch.ch – Steuern","https://www.ch.ch/de/steuern-und-finanzen/steuern/")],"Kinderzulage":[("AHV/IV – Familienzulagen","https://www.ahv-iv.ch/de/Sozialversicherungen/Familienzulagen")],"Ausbildungszulage":[("AHV/IV – Familienzulagen","https://www.ahv-iv.ch/de/Sozialversicherungen/Familienzulagen")],"Welche Unterlagen brauche ich?":[("ch.ch","https://www.ch.ch/")],"Ich weiß nicht, was ich machen muss":[("ch.ch","https://www.ch.ch/")]}
-def extract_pdf(path):
-    if not PdfReader:return ""
-    try:
-        r=PdfReader(str(path));return "\n".join((p.extract_text() or "") for p in r.pages)[:30000]
-    except Exception:return ""
-def pdf_fields(path):
-    if not PdfReader:return []
-    try:
-        r=PdfReader(str(path));fields=r.get_fields() or {};return [{"name":str(k),"description":str(v.get('/TU') or v.get('/TM') or "")} for k,v in fields.items()]
-    except Exception:return []
-def ai_text(prompt):
-    if not OPENAI_KEY:return None
-    try:
-        from openai import OpenAI
-        return OpenAI(api_key=OPENAI_KEY).responses.create(model=MODEL,input=prompt).output_text or ""
-    except Exception:return None
-def json_ai(prompt):
-    txt=ai_text(prompt)
-    if not txt:return None
-    try:return json.loads(txt)
-    except Exception:
-        txt=txt.replace("```json","").replace("```","").strip()
-        try:return json.loads(txt)
-        except Exception:return None
+import os, json, base64, io
+from flask import Flask, request, render_template, jsonify, send_file
+from openai import OpenAI
+from pypdf import PdfReader, PdfWriter
+
+app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 15 * 1024 * 1024
+
+MODEL = os.getenv("OPENAI_MODEL", "gpt-5.6-luna")
+
+client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
+
+SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "document_type": {"type": "string"},
+        "sender": {"type": "string"},
+        "topic": {"type": "string"},
+        "deadline": {"type": ["string", "null"]},
+        "deadline_source": {"type": "string"},
+        "tasks": {"type": "array", "items": {"type": "string"}},
+        "required_documents": {"type": "array", "items": {"type": "string"}},
+        "simple_explanation": {"type": "string"},
+        "next_steps": {"type": "array", "items": {"type": "string"}},
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "form_fields": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "field": {"type": "string"},
+                    "explanation": {"type": "string"},
+                    "what_to_enter": {"type": "string"},
+                    "missing_information": {"type": "string"}
+                },
+                "required": ["field", "explanation", "what_to_enter", "missing_information"]
+            }
+        }
+    },
+    "required": [
+        "document_type", "sender", "topic", "deadline", "deadline_source",
+        "tasks", "required_documents", "simple_explanation",
+        "next_steps", "warnings", "form_fields"
+    ]
+}
+
+INSTRUCTIONS = """
+Du bist SwissHelper AI.
+Arbeite präzise, vorsichtig und mehrsprachig.
+
+Grundregeln:
+- Antworte vollständig in der vom Nutzer gewählten Sprache.
+- Erfinde niemals Fristen, Gebühren, Pflichten oder Dokumente.
+- Trenne den tatsächlichen Dokumentinhalt von allgemeiner Information.
+- Wenn etwas im Dokument nicht lesbar oder nicht eindeutig ist, sage das ausdrücklich.
+- Keine rechtliche Garantie geben.
+- Bei amtlichen/rechtlichen Fragen auf die zuständige Behörde und aktuelle offizielle Quellen verweisen.
+- Bei Formularen: Felder einzeln erkennen. form_fields muss den sichtbaren bzw. erkannten Feldnamen, eine Erklärung, was einzutragen ist, und fehlende Angaben enthalten.
+- Niemals behaupten, ein gescanntes/nicht ausfüllbares PDF direkt ausgefüllt zu haben.
+"""
+
+def ensure_client():
+    if client is None:
+        raise RuntimeError("OPENAI_API_KEY fehlt. Bitte in Render als Environment Variable setzen.")
+
+def file_content(file_bytes, mime, filename):
+    encoded = base64.b64encode(file_bytes).decode("utf-8")
+    if mime == "application/pdf":
+        return {
+            "type": "input_file",
+            "filename": filename or "document.pdf",
+            "file_data": f"data:application/pdf;base64,{encoded}"
+        }
+    return {
+        "type": "input_image",
+        "image_url": f"data:{mime};base64,{encoded}",
+        "detail": "high"
+    }
+
+def analyze_document(file_bytes, mime, filename, language, action="analyze"):
+    ensure_client()
+    prompt = f"""
+Analysiere das hochgeladene Dokument in der Sprache: {language}.
+Aktion: {action}
+
+Wenn es ein Formular ist:
+- Erkenne die Felder möglichst vollständig.
+- Übernimm Feldbezeichnungen sinngemäss bzw. wörtlich, ohne sie umzudeuten.
+- Sage bei jedem Feld, was die Person eintragen muss.
+- Nenne nur Informationen als vorhanden, die aus dem Dokument eindeutig hervorgehen.
+"""
+    response = client.responses.create(
+        model=MODEL,
+        instructions=INSTRUCTIONS,
+        input=[{
+            "role": "user",
+            "content": [
+                {"type": "input_text", "text": prompt},
+                file_content(file_bytes, mime, filename)
+            ]
+        }],
+        text={
+            "format": {
+                "type": "json_schema",
+                "name": "swisshelper_document_analysis",
+                "strict": True,
+                "schema": SCHEMA
+            }
+        },
+        store=False
+    )
+    return json.loads(response.output_text)
+
+def web_json(prompt, schema_name, schema):
+    ensure_client()
+    response = client.responses.create(
+        model=MODEL,
+        tools=[{"type": "web_search"}],
+        instructions=(
+            "Du bist SwissHelper AI. Verwende für rechtliche/amtliche Aussagen "
+            "möglichst aktuelle offizielle Quellen. Bevorzuge Behörden, Ministerien, "
+            "Botschaften, Konsulate und staatliche Portale. Keine erfundenen Links. "
+            "Antworte vollständig in der gewünschten Sprache."
+        ),
+        input=prompt,
+        text={"format": {"type": "json_schema", "name": schema_name, "strict": True, "schema": schema}},
+        store=False
+    )
+    return json.loads(response.output_text)
+
+def source_items(items):
+    return [f"{x.get('name','Quelle')}: {x.get('url','')}" for x in items if x.get("url")]
+
 @app.get("/")
-def home():return send_from_directory(BASE,"index.html")
-@app.get("/healthz")
-def health():return jsonify(status="ok",ai_enabled=bool(OPENAI_KEY))
+def index():
+    return render_template("index.html")
+
 @app.post("/analyze")
 def analyze():
-    f=request.files.get("document");lang=request.form.get("language","Deutsch")
-    if not f:return jsonify(error="Kein Dokument ausgewählt."),400
-    suffix=Path(f.filename or "upload").suffix.lower()
-    with tempfile.NamedTemporaryFile(delete=False,suffix=suffix) as t:f.save(t.name);p=Path(t.name)
+    f = request.files.get("document")
+    language = request.form.get("language", "Deutsch")
+    if not f:
+        return jsonify({"error": "Bitte zuerst ein Dokument auswählen."}), 400
     try:
-        text=extract_pdf(p) if suffix==".pdf" else ""
-        prompt="Analyze this official document. Answer in %s. Return ONLY JSON with keys document_type,sender,topic,deadline,simple_explanation,tasks,next_steps,required_documents,warnings. Do not invent facts.\nDOCUMENT TEXT:\n%s"%(LANG_NAMES.get(lang,lang),text)
-        data=json_ai(prompt)
-        if data:return jsonify(data)
-        return jsonify(document_type="PDF/Dokument" if suffix==".pdf" else "Bilddokument",sender="Nicht automatisch erkannt",topic="Dokumentanalyse",deadline="Nicht automatisch erkannt",simple_explanation="Für die vollständige KI-Analyse kann auf Render OPENAI_API_KEY hinterlegt werden.",tasks=["Originaldokument prüfen","Erkannte Angaben kontrollieren"],next_steps=["Fehlende Angaben ergänzen","Zuständige Stelle anhand offizieller Quellen prüfen"],required_documents=["Originaldokument"],warnings=["Testversion: keine behördliche Entscheidung."])
-    finally:
-        try:p.unlink()
-        except:pass
-@app.post("/translate-document")
-def translate():
-    body=request.get_json(silent=True) or {}
-    lang=request.form.get("target_language") or body.get("target_language","Deutsch")
-    source=request.form.get("source_country") or body.get("source_country","")
-    target=request.form.get("target_country") or body.get("target_country","")
-    purpose=request.form.get("purpose") or body.get("purpose","")
-    original=body.get("original_text","") if request.is_json else ""
-    if not original and request.files.get("translationFile"):
-        f=request.files["translationFile"]
-        with tempfile.NamedTemporaryFile(delete=False,suffix=Path(f.filename or "upload").suffix) as t:f.save(t.name);p=Path(t.name)
-        try:original=extract_pdf(p) if p.suffix.lower()==".pdf" else ""
-        finally:
-            try:p.unlink()
-            except:pass
-    if not original:return jsonify(error="Kein Text bzw. kein lesbarer PDF-Text gefunden."),400
-    prompt="Translate professionally into %s. Preserve names, numbers, dates and legal terminology. Source country=%s; target country=%s; purpose=%s. Return only translation.\n\n%s"%(LANG_NAMES.get(lang,lang),source,target,purpose,original[:30000])
-    result=ai_text(prompt)
-    if result is None:return jsonify(error="Für die professionelle KI-Übersetzung muss auf Render OPENAI_API_KEY hinterlegt werden."),503
-    return jsonify(translation=result)
+        return jsonify(analyze_document(f.read(), f.mimetype, f.filename, language))
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
 @app.post("/form-helper")
 def form_helper():
-    f=request.files.get("form");lang=request.form.get("language","Deutsch");action=request.form.get("action","explain")
-    if not f:return jsonify(error="Kein Formular ausgewählt."),400
-    suffix=Path(f.filename or "upload").suffix.lower()
-    with tempfile.NamedTemporaryFile(delete=False,suffix=suffix) as t:f.save(t.name);p=Path(t.name)
+    f = request.files.get("form")
+    language = request.form.get("language", "Deutsch")
+    action = request.form.get("action", "explain")
+    if not f:
+        return jsonify({"error": "Bitte zuerst ein Formular auswählen."}), 400
     try:
-        text=extract_pdf(p) if suffix==".pdf" else "";fields=pdf_fields(p) if suffix==".pdf" else []
-        if action=="fill":return jsonify(document_type="Ausfüllbares PDF" if fields else "PDF / Scan",fields=fields,fill_note=("Ausfüllbare PDF-Felder wurden erkannt. Die Werte können Feld für Feld vorbereitet werden." if fields else "Dieses Dokument enthält keine technisch erkennbaren PDF-Formularfelder. Es wird Feld für Feld manuell unterstützt; OCR für Scans ist als nächster Ausbauschritt vorgesehen."))
-        prompt="You are a multilingual form helper. Answer in %s. Return ONLY JSON with keys document_type,simple_explanation,next_steps,required_documents,tasks,warnings,deadline. Do not invent requirements.\nFORM TEXT:\n%s"%(LANG_NAMES.get(lang,lang),text[:30000])
-        data=json_ai(prompt)
-        if data:return jsonify(data)
-        return jsonify(document_type="Formular",simple_explanation="Formular erkannt. Für die inhaltliche KI-Erklärung muss OPENAI_API_KEY hinterlegt sein.",next_steps=["Formular öffnen","Pflichtfelder prüfen","Unterlagen anhand des Originals kontrollieren"],required_documents=["Originalformular"],tasks=["Formular vollständig lesen","Fehlende Angaben sammeln"],warnings=["Keine rechtlichen Anforderungen erfinden."],deadline="Nicht automatisch erkannt")
-    finally:
-        try:p.unlink()
-        except:pass
-@app.post("/fill-pdf")
-def fill_pdf():
-    f=request.files.get("form")
-    if not f:return jsonify(error="Kein Formular ausgewählt."),400
-    if not PdfReader:return jsonify(error="PDF-Verarbeitung ist auf diesem Server nicht verfügbar."),500
-    try:values=json.loads(request.form.get("values","{}"))
-    except Exception:return jsonify(error="Ungültige Formularwerte."),400
-    suffix=Path(f.filename or "form.pdf").suffix.lower()
-    if suffix!=".pdf":return jsonify(error="Direktes Ausfüllen ist nur für PDF-Formulare möglich."),400
-    with tempfile.NamedTemporaryFile(delete=False,suffix=".pdf") as t:f.save(t.name);src=Path(t.name)
-    out=src.with_name(src.stem+"_filled.pdf")
-    try:
-        reader=PdfReader(str(src))
-        fields=reader.get_fields() or {}
-        if not fields:return jsonify(error="Dieses PDF hat keine technisch ausfüllbaren Formularfelder. Bitte die Feld-für-Feld-Hilfe verwenden."),400
-        from pypdf import PdfWriter
-        writer=PdfWriter()
-        writer.clone_document_from_reader(reader)
-        names=list(fields.keys())
-        mapped={names[int(k)]:v for k,v in values.items() if str(k).isdigit() and int(k)<len(names) and v is not None}
-        for page in writer.pages: writer.update_page_form_field_values(page,mapped,auto_regenerate=True)
-        with open(out,"wb") as fh:writer.write(fh)
-        return send_file(out,as_attachment=True,download_name="SwissHelper_ausgefuelltes_Formular.pdf",mimetype="application/pdf")
-    except Exception as e:
-        return jsonify(error="Das PDF konnte nicht ausgefüllt werden: "+str(e)),500
-    finally:
-        try:src.unlink()
-        except:pass
+        return jsonify(analyze_document(f.read(), f.mimetype, f.filename, language, action))
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
 
-@app.post("/swiss-helper")
-def swiss_helper():
-    d=request.get_json(silent=True) or {};topic=d.get("topic","");lang=d.get("language","Deutsch");src=SWISS_SOURCES.get(topic,[("ch.ch","https://www.ch.ch/")])
-    steps={"Ausländerausweis verlängern":["Aufenthaltsstatus und zuständigen Kanton prüfen","Frist und zuständige Behörde prüfen","Offizielles Formular bzw. Online-Verfahren verwenden"],"Führerausweis umtauschen":["Ausländischen Führerausweis und Wohnsitzstatus prüfen","Zuständige kantonale Stelle prüfen","Offizielles Gesuch und verlangte Unterlagen vorbereiten"],"In die Schweiz ziehen":["Staatsangehörigkeit und Aufenthaltszweck bestimmen","Einreise- und Aufenthaltsregeln des Ziellandes prüfen","Arbeits-/Familienunterlagen und Anmeldung vorbereiten"]}.get(topic,["Persönliche Situation und zuständige Stelle bestimmen","Aktuelle offizielle Anforderungen prüfen","Formular und Unterlagen vorbereiten"])
-    return jsonify(summary="Test-Workflow für: %s. Sprache: %s."%(topic,LANG_NAMES.get(lang,lang)),steps=steps,sources=[{"name":n,"url":u} for n,u in src])
-if __name__=="__main__":app.run(host="0.0.0.0",port=int(os.getenv("PORT","10000")))
+@app.post("/fill-form")
+def fill_form():
+    f = request.files.get("form")
+    if not f:
+        return jsonify({"error": "Kein Formular."}), 400
+    if f.mimetype != "application/pdf":
+        return jsonify({"error": "Direktes Ausfüllen ist nur für PDF-Dateien möglich."}), 400
+
+    try:
+        data = f.read()
+        reader = PdfReader(io.BytesIO(data))
+        fields = reader.get_fields() or {}
+        if not fields:
+            return jsonify({"error": "Dieses PDF enthält keine ausfüllbaren PDF-Felder. Es wird als Scan behandelt."}), 400
+
+        names = json.loads(request.form.get("field_names", "[]"))
+        values = json.loads(request.form.get("values", "[]"))
+        mapping = {str(n): str(v) for n, v in zip(names, values)}
+
+        writer = PdfWriter()
+        for page in reader.pages:
+            writer.add_page(page)
+
+        for name, value in mapping.items():
+            if name in fields:
+                writer.update_page_form_field_values(
+                    writer.pages,
+                    {name: value},
+                    auto_regenerate=False
+                )
+
+        output = io.BytesIO()
+        writer.write(output)
+        output.seek(0)
+        return send_file(
+            output,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="SwissHelper_ausgefuelltes_Formular.pdf"
+        )
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+TRANSLATION_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "title": {"type": "string"},
+        "translation": {"type": "string"},
+        "legal_requirements": {"type": "string"},
+        "next_steps": {"type": "array", "items": {"type": "string"}},
+        "sources": {"type": "array", "items": {"type": "string"}}
+    },
+    "required": ["title", "translation", "legal_requirements", "next_steps", "sources"]
+}
+
+@app.post("/translate-document")
+def translate_document():
+    f = request.files.get("translationFile")
+    target = request.form.get("target_language", "Deutsch")
+    source_country = request.form.get("source_country", "")
+    target_country = request.form.get("target_country", "")
+    purpose = request.form.get("purpose", "")
+    if not f:
+        return jsonify({"error": "Bitte zuerst ein Dokument auswählen."}), 400
+
+    try:
+        ensure_client()
+        content = file_content(f.read(), f.mimetype, f.filename)
+        prompt = f"""
+Übersetze das hochgeladene Dokument vollständig in {target}.
+Ausgangsland: {source_country}
+Zielland: {target_country}
+Verwendungszweck: {purpose}
+
+Zusätzlich:
+1. Erkläre, ob für den angegebenen Verwendungszweck typischerweise eine beglaubigte/zertifizierte Übersetzung,
+   Apostille, Legalisation, Original, Kopie oder eine andere Form der Anerkennung verlangt werden könnte.
+2. Gib konkrete nächste Schritte an.
+3. Nutze Websuche für aktuelle offizielle Anforderungen und nenne nur Quellen, die du tatsächlich gefunden hast.
+4. Behaupte nicht, dass eine Übersetzung selbst amtlich beglaubigt ist.
+"""
+        response = client.responses.create(
+            model=MODEL,
+            tools=[{"type": "web_search"}],
+            instructions=INSTRUCTIONS,
+            input=[{"role": "user", "content":[{"type":"input_text","text":prompt}, content]}],
+            text={"format":{"type":"json_schema","name":"swisshelper_translation","strict":True,"schema":TRANSLATION_SCHEMA}},
+            store=False
+        )
+        return jsonify(json.loads(response.output_text))
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+HELPER_SCHEMA = {
+    "type":"object","additionalProperties":False,
+    "properties":{
+        "title":{"type":"string"},"summary":{"type":"string"},
+        "next_title":{"type":"string"},"steps":{"type":"array","items":{"type":"string"}},
+        "docs_title":{"type":"string"},"documents":{"type":"array","items":{"type":"string"}},
+        "source_title":{"type":"string"},"sources":{"type":"array","items":{"type":"string"}}
+    },
+    "required":["title","summary","next_title","steps","docs_title","documents","source_title","sources"]
+}
+
+@app.post("/country-helper")
+def country_helper():
+    d = request.get_json() or {}
+    language = d.get("language","Deutsch")
+    prompt = f"""
+Erstelle einen aktuellen Behörden-/Länderweg in {language}.
+Herkunftsland: {d.get('source_country')}
+Zielland: {d.get('target_country')}
+Staatsangehörigkeit: {d.get('nationality')}
+Zweck: {d.get('purpose')}
+
+Suche aktuelle offizielle Quellen. Berücksichtige:
+- Einreise/Aufenthalt/Visum
+- zuständige Behörde
+- Voraussetzungen
+- konkrete Dokumente
+- offizielles Formular oder Online-Antrag, wenn vorhanden
+- nächste Schritte
+- Hinweis, wenn Anforderungen von Kanton, Nationalität oder Zweck abhängen
+"""
+    try:
+        return jsonify(web_json(prompt, "swisshelper_country_helper", HELPER_SCHEMA))
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+TOUR_SCHEMA = {
+    "type":"object","additionalProperties":False,
+    "properties":{
+        "title":{"type":"string"},"summary":{"type":"string"},
+        "entry_title":{"type":"string"},"entry":{"type":"array","items":{"type":"string"}},
+        "docs_title":{"type":"string"},"documents":{"type":"array","items":{"type":"string"}},
+        "source_title":{"type":"string"},"sources":{"type":"array","items":{"type":"string"}}
+    },
+    "required":["title","summary","entry_title","entry","docs_title","documents","source_title","sources"]
+}
+
+@app.post("/tourism-helper")
+def tourism_helper():
+    d = request.get_json() or {}
+    language = d.get("language","Deutsch")
+    prompt = f"""
+Erstelle eine aktuelle touristische Einreise-Checkliste in {language}.
+Staatsangehörigkeit: {d.get('origin')}
+Reiseziel: {d.get('destination')}
+Reisezweck: {d.get('purpose')}
+Dauer: {d.get('duration')}
+Aufenthaltsstatus im Herkunfts-/Wohnland: {d.get('residence')}
+
+Prüfe mit aktuellen offiziellen Quellen:
+- Visumpflicht/Einreise
+- erlaubte Aufenthaltsdauer
+- Reisepass/Identitätsdokument
+- Aufenthaltstitel, falls relevant
+- Rückreise-/Weiterreiseticket, finanzielle Mittel oder Unterkunftsnachweise nur wenn tatsächlich verlangt
+- Reiseversicherung nur soweit offiziell/relevant
+- Zoll/Grenze, wenn relevant
+- besondere aktuelle Einreisevorgaben
+Nenne konkrete offizielle Quellen. Nicht spekulieren.
+"""
+    try:
+        return jsonify(web_json(prompt, "swisshelper_tourism_helper", TOUR_SCHEMA))
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT","10000")))
