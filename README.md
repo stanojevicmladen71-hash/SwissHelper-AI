@@ -1,23 +1,26 @@
-# SwissHelper AI – V16 Korrektur
+# SwissHelper AI – Universal V18
 
-Diese Version korrigiert die zuletzt sichtbaren Probleme der V15-Oberfläche.
+Mehrsprachiger Länder-, Behörden-, Dokument-, Übersetzungs- und Formular-Helfer.
 
-## Enthalten
-- Zentrale Sprache steuert die komplette Oberfläche.
-- Serbisch Latein und Serbisch Kyrillisch.
-- Weitere geplante Sprachen inklusive Niederländisch und Russisch.
-- Benutzerdefinierte Dateiauswahl, damit „Datei auswählen“ ebenfalls übersetzt werden kann.
-- Formular-Helfer mit Erklärung, Feld-für-Feld-Ausfüllhilfe, fehlenden Unterlagen und „Neues Formular“.
-- Ausfüllbare PDF-Formulare können 1:1 als PDF weiterverwendet und mit Feldwerten ausgefüllt werden.
-- Nicht ausfüllbare/scannte Formulare werden nicht fälschlich als direkt ausfüllbar bezeichnet; dafür gibt es Feld-für-Feld-Hilfe.
-- Professionelle Dokumentübersetzung mit Ausgangsland, Zielland, Zweck und Prüfung aktueller offizieller Anforderungen.
-- Länder-/Behörden-Helfer mit aktueller Websuche und offiziellen Quellen.
-- Tourismus-/Einreise-Helfer.
-- Free / Plus / Pro vollständig über die gewählte Sprache steuerbar.
-- Module können mit X geschlossen bzw. zurückgesetzt werden.
+## V18 Änderungen
+- Zentrale Sprachsteuerung für Oberfläche, Ergebnisse und Schaltflächen.
+- Serbisch: Latinica und Ćirilica.
+- Mazedonisch: Кирилица und zusätzliche Latinica-Ansicht.
+- Ländernamen werden in der gewählten UI-Sprache angezeigt.
+- Länder-/Amtswege-Helfer und Tourismus-/Einreise-Helfer mit Land + Region/Stadt.
+- Kein separater Liechtenstein-Haupthelfer mehr; Liechtenstein läuft über die normale Länder-/Tourismus-Auswahl.
+- Country-/Tourism-Ergebnisse verwenden für die Überschriften und Schaltflächen die gewählte UI-Sprache.
+- Formular-Helfer erkennt echte PDF-AcroForm-Felder direkt aus dem Original-PDF.
+- Bei ausfüllbaren PDFs werden die Originalseiten, Positionen und Formularstruktur erhalten; nur echte PDF-Felder werden befüllt.
+- Ja/Nein-, Auswahl-, Radio- und Checkbox-Felder werden entsprechend ihres PDF-Feldtyps dargestellt.
+- Nicht ausfüllbare Scans bleiben bei der Feld-für-Feld-Hilfe; kein falsches 1:1-Ausfüllen.
+- Druckansicht mit eigenem Vorschaufenster und X-Schaltfläche.
+- A4-Drucklayout bleibt erhalten; der Browser-Druckdialog kann für „Als PDF speichern“ verwendet werden.
 
-## Sicherheit
-OPENAI_API_KEY nur als Environment Variable in Render setzen, niemals in GitHub oder diesen Dateien speichern.
+## Start
+```bash
+pip install -r requirements.txt
+python app.py
+```
 
-## Render
-Free Web Service. OPENAI_MODEL ist standardmässig `gpt-5.6-luna`.
+Für Render wird `gunicorn` verwendet. `OPENAI_API_KEY` muss als Environment Variable gesetzt werden.

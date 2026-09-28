@@ -79,6 +79,35 @@ def file_content(file_bytes, mime, filename):
         "detail": "high"
     }
 
+def extract_pdf_fields(file_bytes):
+    """Read the real AcroForm structure without changing the original PDF."""
+    reader = PdfReader(io.BytesIO(file_bytes))
+    fields = reader.get_fields() or {}
+    result = []
+    for name, field in fields.items():
+        try:
+            ft = str(field.get("/FT", "")); flags = int(field.get("/Ff", 0) or 0)
+            value = field.get("/V", "") or ""; kind = "text"; options = []
+            if ft == "/Btn":
+                kind = "radio" if flags & 32768 else ("button" if flags & 65536 else "checkbox")
+            elif ft == "/Ch":
+                kind = "choice"
+                for opt in (field.get("/Opt", []) or []):
+                    if isinstance(opt, (list, tuple)) and len(opt) >= 2: options.append({"value":str(opt[0]),"label":str(opt[1])})
+                    else: options.append({"value":str(opt),"label":str(opt)})
+            if kind in ("radio", "checkbox"):
+                try:
+                    for kid_ref in (field.get("/Kids", []) or []):
+                        kid=kid_ref.get_object(); ap=kid.get("/AP", {}) or {}; normal=ap.get("/N", {}) if hasattr(ap,"get") else {}
+                        if hasattr(normal,"keys"):
+                            for state in normal.keys():
+                                state=str(state)
+                                if state != "/Off" and not any(o["value"]==state for o in options): options.append({"value":state,"label":state.lstrip("/")})
+                except Exception: pass
+            result.append({"name":str(name),"label":str(field.get("/TU") or field.get("/T") or name),"type":kind,"value":str(value).lstrip("/"),"options":options,"required":bool(flags & 2)})
+        except Exception: continue
+    return {"fillable":bool(result),"page_count":len(reader.pages),"fields":result}
+
 def analyze_document(file_bytes, mime, filename, language, action="analyze"):
     ensure_client()
     pdf_field_names = []
@@ -122,7 +151,12 @@ Wenn es ein Formular ist:
         },
         store=False
     )
-    return json.loads(response.output_text)
+    result = json.loads(response.output_text)
+    if mime == "application/pdf":
+        try: result["pdf_meta"] = extract_pdf_fields(file_bytes)
+        except Exception: result["pdf_meta"] = {"fillable":False,"page_count":0,"fields":[]}
+    else: result["pdf_meta"] = {"fillable":False,"page_count":0,"fields":[]}
+    return result
 
 def web_json(prompt, schema_name, schema):
     ensure_client()
@@ -173,46 +207,27 @@ def form_helper():
 
 @app.post("/fill-form")
 def fill_form():
-    f = request.files.get("form")
-    if not f:
-        return jsonify({"error": "Kein Formular."}), 400
-    if f.mimetype != "application/pdf":
-        return jsonify({"error": "Direktes Ausfüllen ist nur für PDF-Dateien möglich."}), 400
-
+    f=request.files.get("form")
+    if not f: return jsonify({"error":"Kein Formular."}),400
+    if f.mimetype!="application/pdf": return jsonify({"error":"Direktes Ausfüllen ist nur für PDF-Dateien möglich."}),400
     try:
-        data = f.read()
-        reader = PdfReader(io.BytesIO(data))
-        fields = reader.get_fields() or {}
-        if not fields:
-            return jsonify({"error": "Dieses PDF enthält keine ausfüllbaren PDF-Felder. Es wird als Scan behandelt."}), 400
-
-        names = json.loads(request.form.get("field_names", "[]"))
-        values = json.loads(request.form.get("values", "[]"))
-        mapping = {str(n): str(v) for n, v in zip(names, values)}
-
-        writer = PdfWriter()
-        for page in reader.pages:
-            writer.add_page(page)
-
-        for name, value in mapping.items():
-            if name in fields:
-                writer.update_page_form_field_values(
-                    writer.pages,
-                    {name: value},
-                    auto_regenerate=False
-                )
-
-        output = io.BytesIO()
-        writer.write(output)
-        output.seek(0)
-        return send_file(
-            output,
-            mimetype="application/pdf",
-            as_attachment=True,
-            download_name="SwissHelper_ausgefuelltes_Formular.pdf"
-        )
-    except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+        data=f.read(); reader=PdfReader(io.BytesIO(data)); fields=reader.get_fields() or {}
+        if not fields: return jsonify({"error":"Dieses PDF enthält keine ausfüllbaren PDF-Felder. Das Original bleibt unverändert; für Scans steht die Feld-für-Feld-Hilfe zur Verfügung."}),400
+        values=json.loads(request.form.get("field_values","{}") or "{}")
+        if not isinstance(values,dict): return jsonify({"error":"Ungültige Felddaten."}),400
+        writer=PdfWriter(); writer.append(reader)
+        mapping={}
+        for name,value in values.items():
+            if name not in fields or value is None: continue
+            field=fields[name]; ft=str(field.get("/FT","")); flags=int(field.get("/Ff",0) or 0); value=str(value)
+            if ft=="/Btn":
+                if flags & 65536: continue
+                mapping[name]=value if value else "/Off"
+            else: mapping[name]=value
+        if mapping: writer.update_page_form_field_values(None,mapping,auto_regenerate=False,flatten=False)
+        output=io.BytesIO(); writer.write(output); output.seek(0)
+        return send_file(output,mimetype="application/pdf",as_attachment=True,download_name="SwissHelper_Originalformular_ausgefuellt.pdf")
+    except Exception as exc: return jsonify({"error":str(exc)}),500
 
 TRANSLATION_SCHEMA = {
     "type": "object",
@@ -289,6 +304,8 @@ def country_helper():
 Erstelle einen aktuellen Behörden-/Länderweg in {language}.
 Herkunftsland: {d.get('source_country')}
 Zielland: {d.get('target_country')}
+Herkunftsregion/Stadt: {d.get('source_place')}
+Zielregion/Stadt: {d.get('target_place')}
 Staatsangehörigkeit: {d.get('nationality')}
 Zweck: {d.get('purpose')}
 
@@ -328,7 +345,9 @@ def tourism_helper():
     prompt = f"""
 Erstelle eine aktuelle touristische Einreise-Checkliste in {language}.
 Staatsangehörigkeit: {d.get('origin')}
+Herkunftsregion/Stadt: {d.get('origin_place')}
 Reiseziel: {d.get('destination')}
+Zielregion/Stadt: {d.get('destination_place')}
 Reisezweck: {d.get('purpose')}
 Dauer: {d.get('duration')}
 Aufenthaltsstatus im Herkunfts-/Wohnland: {d.get('residence')}
@@ -350,55 +369,6 @@ Nenne konkrete offizielle Quellen. Nicht spekulieren.
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
 
-
-FAMILY_SCHEMA = {
-    "type":"object","additionalProperties":False,
-    "properties":{
-        "title":{"type":"string"},"summary":{"type":"string"},
-        "responsible_title":{"type":"string"},"responsible":{"type":"string"},
-        "docs_title":{"type":"string"},"documents":{"type":"array","items":{"type":"string"}},
-        "forms":{"type":"array","items":{"type":"object","additionalProperties":False,"properties":{"name":{"type":"string"},"url":{"type":"string"},"why":{"type":"string"}},"required":["name","url","why"]}},
-        "next_title":{"type":"string"},"next_steps":{"type":"array","items":{"type":"string"}},
-        "source_title":{"type":"string"},"sources":{"type":"array","items":{"type":"string"}}
-    },
-    "required":["title","summary","responsible_title","responsible","docs_title","documents","forms","next_title","next_steps","source_title","sources"]
-}
-
-@app.post("/liechtenstein-family")
-def liechtenstein_family():
-    d = request.get_json() or {}
-    language = d.get("language", "Deutsch")
-    prompt = f"""
-Erstelle eine aktuelle, vorsichtige Orientierung zu Familienzulagen in Liechtenstein in der Sprache {language}.
-Profil:
-- Wohnsitzland: {d.get('residence_country')}
-- Staatsangehörigkeit: {d.get('nationality')}
-- Arbeitsland: {d.get('work_country')}
-- Wohnsitzland der Kinder: {d.get('children_country')}
-- Arbeitet der andere Elternteil: {d.get('spouse_work')}
-
-Nutze vorrangig offizielle Quellen der Liechtensteinischen AHV-IV-FAK und der Liechtensteinischen Landesverwaltung.
-Prüfe insbesondere: Anspruch als Grenzgänger, mögliche Konkurrenz ausländischer Familienleistungen, Differenzausgleich, zuständige Stelle und das passende offizielle Formular.
-Für eine Person mit Wohnsitz in der Schweiz und Arbeit in Liechtenstein ist das offizielle Formular FZ-Ausland – Anmeldung Familienzulagen (FAK-02) besonders zu prüfen; nenne es als offizielles Formular nur, wenn es zum beschriebenen Profil passt.
-Nutze als offizielle Formularquelle https://www.ahv.li/online-schalter/formulare und, falls passend, direkt https://www.ahv.li/fileadmin/user_upload/Dokumente/Online-Schalter/FORM/AHV-IV-FAK-FORM-4-02--Anmeldung_FZ_Ausland.pdf.
-Keine definitive Anspruchszusage geben; kennzeichne, welche Punkte die FAK anhand des konkreten Familien- und Beschäftigungsfalls prüfen muss.
-Alle Überschriften und Antworten vollständig in der gewünschten Sprache.
-"""
-    try:
-        result = web_json(prompt, "swisshelper_liechtenstein_family", FAMILY_SCHEMA)
-        forms = [f for f in (result.get("forms") or []) if str(f.get("url", "")).startswith(("https://www.ahv.li/", "https://www.llv.li/"))]
-        residence = str(d.get("residence_country", ""))
-        work = str(d.get("work_country", ""))
-        if residence == "Schweiz" and work == "Liechtenstein":
-            forms.insert(0, {"name":"FZ-Ausland – Anmeldung Familienzulagen (FAK-02)","url":"https://www.ahv.li/fileadmin/user_upload/Dokumente/Online-Schalter/FORM/AHV-IV-FAK-FORM-4-02--Anmeldung_FZ_Ausland.pdf","why":"Offizielles Formular für Grenzgänger/Kurzaufenthalter; die konkrete Zuständigkeit und die Beilagen müssen anhand des Einzelfalls geprüft werden."})
-        elif residence == "Liechtenstein":
-            forms.insert(0, {"name":"FZ-Inland – Anmeldung Familienzulagen (FAK-01)","url":"https://www.ahv.li/fileadmin/user_upload/Dokumente/Online-Schalter/FORM/AHV-IV-FAK-FORM-4-01--Anmeldung_FZ-Inland.pdf","why":"Offizielles Formular für Personen mit Wohnsitz in Liechtenstein; konkrete Voraussetzungen und Beilagen anhand des Einzelfalls prüfen."})
-        forms.append({"name":"AHV-IV-FAK – Formulare","url":"https://www.ahv.li/online-schalter/formulare","why":"Offizielle Übersicht der aktuellen Formulare und Online-Anträge."})
-        # Keep order but remove duplicate URLs.
-        seen = set(); result["forms"] = [f for f in forms if not (f.get("url") in seen or seen.add(f.get("url")))]
-        return jsonify(result)
-    except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT","10000")))
