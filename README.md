@@ -1,8 +1,8 @@
-# SwissHelper AI – Universal V18
+# SwissHelper AI – Universal V21
 
 Mehrsprachiger Länder-, Behörden-, Dokument-, Übersetzungs- und Formular-Helfer.
 
-## V18 Änderungen
+## V21 Änderungen
 - Zentrale Sprachsteuerung für Oberfläche, Ergebnisse und Schaltflächen.
 - Serbisch: Latinica und Ćirilica.
 - Mazedonisch: Кирилица und zusätzliche Latinica-Ansicht.
@@ -24,3 +24,16 @@ python app.py
 ```
 
 Für Render wird `gunicorn` verwendet. `OPENAI_API_KEY` muss als Environment Variable gesetzt werden.
+
+
+V21: Vollständige Lokalisierung der Auswahlfelder in Länder-/Amtswege- und Tourismus-Helfer: Länder, Regionen/Städte und Verwendungszwecke werden passend zur gewählten UI-Sprache angezeigt. Interne Werte bleiben stabil, damit die Backend-Abfragen korrekt funktionieren.
+
+
+V21: Macedonian and Bulgarian are explicitly available in Cyrillic and Latin transliteration. Country, region/city, purpose and travel labels follow the selected script.
+
+
+## V21
+- PDF-Ergebnisse werden direkt als PDF-Datei erzeugt und heruntergeladen; der PDF-Button öffnet nicht mehr den Druckdialog.
+- Formular-Helfer hält die gewählte UI-Sprache und Schrift fest.
+- Formularerklärungen erzwingen die gewählte Sprache und Schrift, insbesondere Serbisch/Mazedonisch/Bulgarisch in Kyrillisch bzw. Latinica.
+- Ausfüllbare Original-PDFs bleiben 1:1 erhalten und werden direkt als ausgefülltes Originalformular ausgegeben.

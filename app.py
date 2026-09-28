@@ -120,8 +120,9 @@ def analyze_document(file_bytes, mime, filename, language, action="analyze"):
     if pdf_field_names:
         field_hint = "\nDieses PDF enthält ausfüllbare PDF-Felder. Verwende für form_fields.field exakt diese internen Feldnamen, wenn sie sinnvoll zugeordnet werden können: " + ", ".join(map(str, pdf_field_names))
     prompt = f"""
-Analysiere das hochgeladene Dokument in der Sprache: {language}.
+Analysiere das hochgeladene Dokument vollständig in der Sprache und Schrift: {language}.
 Aktion: {action}
+WICHTIG FÜR DIE AUSGABE: Alle von dir erzeugten Erklärungen, Überschriften, Feldhinweise und Hinweise müssen vollständig in der gewählten Sprache erscheinen. Bei „Serbisch – Kyrillisch“ ausschließlich kyrillische Schrift verwenden. Bei „Serbisch“ ausschließlich lateinische Schrift verwenden. Bei „Mazedonisch“ ausschließlich kyrillische Schrift verwenden. Bei „Mazedonisch – Latinica“ ausschließlich lateinische Schrift verwenden. Bei „Bulgarisch“ ausschließlich kyrillische Schrift verwenden. Bei „Bulgarisch – Latinica“ ausschließlich lateinische Schrift verwenden. Niemals wegen der Sprache des Original-PDFs automatisch auf Deutsch oder eine andere Sprache wechseln. Interne PDF-Feldnamen dürfen technisch original bleiben, die sichtbare Erklärung muss aber in der gewählten Sprache/Schrift sein.
 
 Wenn es ein Formular ist:
 - Erkenne die Felder möglichst vollständig.
