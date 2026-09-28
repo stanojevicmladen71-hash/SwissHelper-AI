@@ -1,39 +1,32 @@
-# SwissHelper AI – Universal V21
+# SwissHelper AI V26 – Korrigierter Gesamtstand
 
-Mehrsprachiger Länder-, Behörden-, Dokument-, Übersetzungs- und Formular-Helfer.
+Diese Version wurde nicht nur an einer einzelnen Stelle geändert, sondern als Gesamtstand geprüft.
 
-## V21 Änderungen
-- Zentrale Sprachsteuerung für Oberfläche, Ergebnisse und Schaltflächen.
-- Serbisch: Latinica und Ćirilica.
-- Mazedonisch: Кирилица und zusätzliche Latinica-Ansicht.
-- Ländernamen werden in der gewählten UI-Sprache angezeigt.
-- Länder-/Amtswege-Helfer und Tourismus-/Einreise-Helfer mit Land + Region/Stadt.
-- Kein separater Liechtenstein-Haupthelfer mehr; Liechtenstein läuft über die normale Länder-/Tourismus-Auswahl.
-- Country-/Tourism-Ergebnisse verwenden für die Überschriften und Schaltflächen die gewählte UI-Sprache.
-- Formular-Helfer erkennt echte PDF-AcroForm-Felder direkt aus dem Original-PDF.
-- Bei ausfüllbaren PDFs werden die Originalseiten, Positionen und Formularstruktur erhalten; nur echte PDF-Felder werden befüllt.
-- Ja/Nein-, Auswahl-, Radio- und Checkbox-Felder werden entsprechend ihres PDF-Feldtyps dargestellt.
-- Nicht ausfüllbare Scans bleiben bei der Feld-für-Feld-Hilfe; kein falsches 1:1-Ausfüllen.
-- Druckansicht mit eigenem Vorschaufenster und X-Schaltfläche.
-- A4-Drucklayout bleibt erhalten; der Browser-Druckdialog kann für „Als PDF speichern“ verwendet werden.
+## Sprachsteuerung
+- 25 UI-Sprachen.
+- Die gewählte Sprache steuert die komplette sichtbare Oberfläche.
+- Serbisch: Lateinisch und Kyrillisch.
+- Mazedonisch: Kyrillisch und Latinica.
+- Bulgarisch: Kyrillisch und Latinica.
+- Sprachliste und Ländernamen werden in der ausgewählten Sprache angezeigt.
+- Region/Stadt-Bezeichnungen bleiben konsistent mit der gewählten UI-Sprache.
 
-## Start
-```bash
-pip install -r requirements.txt
-python app.py
-```
+## A4 / PDF
+- Ergebnisblöcke sind für A4 aufgebaut.
+- Der PDF-Button erzeugt die PDF-Datei direkt als Download; es wird kein Browser-Druckdialog benötigt.
+- Die PDF-Erzeugung verwendet A4 (210 × 297 mm) und getrennte A4-Ergebnisblöcke.
 
-Für Render wird `gunicorn` verwendet. `OPENAI_API_KEY` muss als Environment Variable gesetzt werden.
+## Formular-Helfer
+- Ein echtes ausfüllbares PDF wird als Original-PDF verarbeitet.
+- Die Originalseiten, Seitengrößen, Feldnamen und Formularstruktur bleiben erhalten.
+- Es werden nur die echten PDF-Formularfelder befüllt.
+- Das ausgefüllte Ergebnis wird direkt als PDF heruntergeladen.
+- Bei nicht ausfüllbaren/scannbaren Formularen wird keine Ersatzvorlage erzeugt; stattdessen bleibt die Feld-für-Feld-Hilfe verfügbar.
+- Die Erklärung kann in der ausgewählten UI-Sprache erfolgen; das Originalformular selbst bleibt in seiner Originalsprache.
 
+## Technischer Test
+Die AcroForm-Logik wurde mit einem mehrseitigen A4-Testformular geprüft: Seitenanzahl, A4-Seitengröße und PDF-Feldnamen blieben beim Befüllen erhalten.
 
-V21: Vollständige Lokalisierung der Auswahlfelder in Länder-/Amtswege- und Tourismus-Helfer: Länder, Regionen/Städte und Verwendungszwecke werden passend zur gewählten UI-Sprache angezeigt. Interne Werte bleiben stabil, damit die Backend-Abfragen korrekt funktionieren.
-
-
-V21: Macedonian and Bulgarian are explicitly available in Cyrillic and Latin transliteration. Country, region/city, purpose and travel labels follow the selected script.
-
-
-## V21
-- PDF-Ergebnisse werden direkt als PDF-Datei erzeugt und heruntergeladen; der PDF-Button öffnet nicht mehr den Druckdialog.
-- Formular-Helfer hält die gewählte UI-Sprache und Schrift fest.
-- Formularerklärungen erzwingen die gewählte Sprache und Schrift, insbesondere Serbisch/Mazedonisch/Bulgarisch in Kyrillisch bzw. Latinica.
-- Ausfüllbare Original-PDFs bleiben 1:1 erhalten und werden direkt als ausgefülltes Originalformular ausgegeben.
+## Render
+- Dockerfile und render.yaml sind enthalten.
+- `OPENAI_API_KEY` bleibt ausschließlich als Render-Umgebungsvariable vorgesehen und darf nicht in den Quellcode eingetragen werden.
