@@ -10,13 +10,15 @@ label{display:block;font-weight:700;margin-bottom:6px}select,input[type=text],te
 button{padding:11px 14px;border:0;border-radius:10px;background:var(--accent);color:#fff;font:inherit;font-weight:700;cursor:pointer}button.secondary{background:#e8f1f2;color:var(--text);border:1px solid var(--line)}button:disabled{opacity:.6;cursor:not-allowed}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.actions button{flex:1;min-width:190px}
 .hidden{display:none!important}.item,.notice{padding:14px;background:var(--soft);border-radius:10px;margin:8px 0}.warning{background:#fff7e6}
-.result-wrap{margin-top:16px}.a4-page{width:210mm;min-height:297mm;max-width:100%;margin:18px auto;padding:18mm;background:#fff;border:1px solid #d8e3e8;line-height:1.55;box-shadow:0 4px 18px rgba(0,0,0,.06);overflow-wrap:anywhere}.a4-page + .a4-page{page-break-before:always}
+.result-wrap{margin-top:16px}.form-page{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:16px;align-items:start;margin:18px auto;padding:0;max-width:1200px}.form-original,.form-help{background:#fff;border:1px solid #d8e3e8;border-radius:14px;overflow:hidden}.form-original-head,.form-help-head{padding:10px 14px;background:var(--soft);border-bottom:1px solid var(--line);font-weight:700}.form-original iframe{display:block;width:100%;height:297mm;min-height:720px;border:0;background:#fff}.form-original{min-width:0}.form-help{min-width:0}.form-page{scroll-margin-top:20px}.form-help-body{padding:14px}.form-field{padding:13px;margin:0 0 12px;background:var(--soft);border:1px solid #e0ebed;border-radius:12px}.form-original-label{font-weight:800;margin-bottom:5px}.form-translation{font-weight:700;margin-bottom:5px}.form-instruction{font-size:14px;margin:0 0 10px;color:var(--text)}.form-option{display:flex;gap:8px;align-items:center;font-weight:600;margin:6px 0}.form-option input{width:auto}.form-page-actions{display:flex;gap:8px;justify-content:space-between;align-items:center;margin:10px auto 18px;max-width:1200px}.form-page-actions button{min-width:150px}.form-status{padding:12px 14px;border-radius:10px;background:#eef8f8;margin:12px 0;font-weight:700}.form-page-empty{padding:16px;color:var(--muted)}.translation-page{width:210mm;min-height:297mm;max-width:100%;margin:18px auto;padding:18mm;background:#fff;border:1px solid #d8e3e8;box-sizing:border-box;line-height:1.55;overflow-wrap:anywhere}.translation-original iframe{display:block;width:100%;height:297mm;min-height:720px;border:0;background:#fff}.translation-block{margin:0 auto 18px;max-width:1200px}.translation-block-head{padding:10px 14px;background:var(--soft);border:1px solid var(--line);border-radius:12px 12px 0 0;font-weight:700}.translation-download{display:block;margin:14px auto}
+.a4-page{width:210mm;min-height:297mm;max-width:100%;margin:18px auto;padding:18mm;background:#fff;border:1px solid #d8e3e8;line-height:1.55;box-shadow:0 4px 18px rgba(0,0,0,.06);overflow-wrap:anywhere}.a4-page + .a4-page{page-break-before:always}
 .result-toolbar{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin:10px auto;max-width:210mm}.print-overlay{position:fixed;inset:0;background:rgba(10,30,35,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.print-box{width:min(900px,96vw);height:min(92vh,900px);background:#fff;border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}.print-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}.print-head button{background:#eee;color:var(--text);border:1px solid #ddd;padding:6px 10px}.print-preview-scroll{overflow:auto;padding:16px;background:#eef3f4;flex:1}.print-preview-scroll .a4-page{margin:0 auto 16px}.print-actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}.result-toolbar button{min-width:180px}
 .section{break-inside:avoid;margin:0 0 18px}.source-list li{margin-bottom:6px}.form-link{display:inline-block;margin:6px 8px 6px 0;text-decoration:none;padding:10px 12px;border-radius:10px;background:#e8f1f2;color:var(--text);border:1px solid var(--line);font-weight:700}
 .filebox{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px dashed var(--line);padding:10px;border-radius:10px}.filebox input{display:none}.filebutton{background:#e8f1f2;color:var(--text);border:1px solid var(--line);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
 .module-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.xbtn{background:#eee;color:#17333b;border:1px solid #ddd;padding:6px 10px}
 .package-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.package{border:1px solid var(--line);border-radius:14px;padding:16px}
-@media(max-width:760px){.grid2,.grid3,.package-grid{grid-template-columns:1fr}.actions button{min-width:100%}.a4-page{width:100%;padding:12mm;box-shadow:none}.result-toolbar{max-width:100%}}
+@media(max-width:900px){.form-page{grid-template-columns:1fr}.form-original iframe{height:900px;min-height:0}}
+@media(max-width:760px){.grid2,.grid3,.package-grid{grid-template-columns:1fr}.actions button{min-width:100%}.a4-page{width:100%;padding:12mm;box-shadow:none}.result-toolbar{max-width:100%}.form-original iframe{height:760px}.form-page-actions{flex-direction:column;align-items:stretch}}
 @media print{ #printPreview{display:none!important}body{background:#fff}body>*{display:none!important}#printArea{display:block!important}.print-only{display:block!important}.a4-page{width:210mm;min-height:297mm;margin:0;padding:18mm;border:0;box-shadow:none;page-break-after:always}.a4-page:last-child{page-break-after:auto}@page{size:A4;margin:0}}
 </style></head><body><div class="wrap">
 <section class="card"><div class="module-head"><div><h1>SwissHelper AI</h1><p id="subtitle"></p></div><div style="min-width:230px"><label id="languageLabel"></label><select id="languageSelect"></select></div></div><p id="intro"></p></section>
@@ -99,6 +101,33 @@ SPOUSE_LABELS["Mazedonisch – Latinica"]=(SPOUSE_LABELS["Mazedonisch"]||[]).map
 
 
 function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val??""}
+const FORM_UI={
+"Deutsch":{original:"Originalformular",translation:"Übersetzung",instruction:"Was Sie hier eintragen",page:"Seite",of:"von",prev:"← Vorherige Seite",next:"Nächste Seite →",analyzing:"Formular wird analysiert …",creating:"Ausgefülltes PDF wird erstellt …",noFields:"Auf dieser Seite wurden keine ausfüllbaren Felder erkannt."},
+"Serbisch":{original:"Originalni obrazac",translation:"Prevod",instruction:"Šta ovde treba da unesete",page:"Strana",of:"od",prev:"← Prethodna strana",next:"Sledeća strana →",analyzing:"Obrazac se analizira …",creating:"Popunjeni PDF se kreira …",noFields:"Na ovoj strani nisu pronađena polja za popunjavanje."},
+"Serbisch – Kyrillisch":{original:"Оригинални образац",translation:"Превод",instruction:"Шта овде треба да унесете",page:"Страна",of:"од",prev:"← Претходна страна",next:"Следећа страна →",analyzing:"Образац се анализира …",creating:"Попуњени PDF се креира …",noFields:"На овој страни нису пронађена поља за попуњавање."},
+"Bosnisch":{original:"Originalni obrazac",translation:"Prevod",instruction:"Šta ovdje treba da unesete",page:"Stranica",of:"od",prev:"← Prethodna stranica",next:"Sljedeća stranica →",analyzing:"Obrazac se analizira …",creating:"Popunjeni PDF se kreira …",noFields:"Na ovoj stranici nisu pronađena polja za popunjavanje."},
+"Kroatisch":{original:"Izvorni obrazac",translation:"Prijevod",instruction:"Što ovdje trebate unijeti",page:"Stranica",of:"od",prev:"← Prethodna stranica",next:"Sljedeća stranica →",analyzing:"Obrazac se analizira …",creating:"Ispunjeni PDF se izrađuje …",noFields:"Na ovoj stranici nisu pronađena polja za ispunjavanje."},
+"Englisch":{original:"Original form",translation:"Translation",instruction:"What to enter here",page:"Page",of:"of",prev:"← Previous page",next:"Next page →",analyzing:"The form is being analyzed …",creating:"Creating the completed PDF …",noFields:"No fillable fields were detected on this page."},
+"Italienisch":{original:"Modulo originale",translation:"Traduzione",instruction:"Cosa inserire qui",page:"Pagina",of:"di",prev:"← Pagina precedente",next:"Pagina successiva →",analyzing:"Il modulo viene analizzato …",creating:"Creazione del PDF compilato …",noFields:"Nessun campo compilabile rilevato in questa pagina."},
+"Französisch":{original:"Formulaire original",translation:"Traduction",instruction:"Que saisir ici",page:"Page",of:"sur",prev:"← Page précédente",next:"Page suivante →",analyzing:"Le formulaire est en cours d’analyse …",creating:"Création du PDF rempli …",noFields:"Aucun champ à remplir détecté sur cette page."},
+"Albanisch":{original:"Formulari origjinal",translation:"Përkthimi",instruction:"Çfarë duhet të vendosni këtu",page:"Faqe",of:"nga",prev:"← Faqja e mëparshme",next:"Faqja tjetër →",analyzing:"Formulari po analizohet …",creating:"Po krijohet PDF-ja e plotësuar …",noFields:"Në këtë faqe nuk u gjetën fusha për plotësim."},
+"Polnisch":{original:"Oryginalny formularz",translation:"Tłumaczenie",instruction:"Co należy tutaj wpisać",page:"Strona",of:"z",prev:"← Poprzednia strona",next:"Następna strona →",analyzing:"Formularz jest analizowany …",creating:"Tworzenie wypełnionego pliku PDF …",noFields:"Na tej stronie nie wykryto pól do wypełnienia."},
+"Slowakisch":{original:"Originálny formulár",translation:"Preklad",instruction:"Čo sem treba zadať",page:"Strana",of:"z",prev:"← Predchádzajúca strana",next:"Ďalšia strana →",analyzing:"Formulár sa analyzuje …",creating:"Vytvára sa vyplnené PDF …",noFields:"Na tejto strane sa nenašli vyplniteľné polia."},
+"Rumänisch":{original:"Formularul original",translation:"Traducere",instruction:"Ce trebuie introdus aici",page:"Pagina",of:"din",prev:"← Pagina anterioară",next:"Pagina următoare →",analyzing:"Formularul este analizat …",creating:"Se creează PDF-ul completat …",noFields:"Pe această pagină nu au fost găsite câmpuri completabile."},
+"Spanisch":{original:"Formulario original",translation:"Traducción",instruction:"Qué debe introducir aquí",page:"Página",of:"de",prev:"← Página anterior",next:"Página siguiente →",analyzing:"Se está analizando el formulario …",creating:"Se está creando el PDF cumplimentado …",noFields:"No se detectaron campos rellenables en esta página."},
+"Griechisch":{original:"Αρχικό έντυπο",translation:"Μετάφραση",instruction:"Τι πρέπει να συμπληρώσετε εδώ",page:"Σελίδα",of:"από",prev:"← Προηγούμενη σελίδα",next:"Επόμενη σελίδα →",analyzing:"Το έντυπο αναλύεται …",creating:"Δημιουργείται το συμπληρωμένο PDF …",noFields:"Δεν εντοπίστηκαν συμπληρώσιμα πεδία σε αυτή τη σελίδα."},
+"Ungarisch":{original:"Eredeti űrlap",translation:"Fordítás",instruction:"Mit kell itt megadni",page:"Oldal",of:"/",prev:"← Előző oldal",next:"Következő oldal →",analyzing:"Az űrlap elemzése folyamatban …",creating:"A kitöltött PDF létrehozása …",noFields:"Ezen az oldalon nem találhatók kitölthető mezők."},
+"Tschechisch":{original:"Původní formulář",translation:"Překlad",instruction:"Co zde vyplnit",page:"Strana",of:"z",prev:"← Předchozí strana",next:"Další strana →",analyzing:"Formulář se analyzuje …",creating:"Vytváří se vyplněné PDF …",noFields:"Na této stránce nebyla nalezena vyplnitelná pole."},
+"Mazedonisch":{original:"Оригинален образец",translation:"Превод",instruction:"Што треба да внесете овде",page:"Страница",of:"од",prev:"← Претходна страница",next:"Следна страница →",analyzing:"Образецот се анализира …",creating:"Се креира пополнетиот PDF …",noFields:"На оваа страница не се пронајдени полиња за пополнување."},
+"Mazedonisch – Latinica":{original:"Originalen obrazec",translation:"Prevod",instruction:"Shto treba da vnesete ovde",page:"Stranica",of:"od",prev:"← Prethodna stranica",next:"Sledna stranica →",analyzing:"Obrazecot se analizira …",creating:"Se kreira popolnetiot PDF …",noFields:"Na ovaa stranica ne se pronajdeni polinja za popolnuvanje."},
+"Bulgarisch":{original:"Оригинален формуляр",translation:"Превод",instruction:"Какво трябва да въведете тук",page:"Страница",of:"от",prev:"← Предишна страница",next:"Следваща страница →",analyzing:"Формулярът се анализира …",creating:"Създава се попълненият PDF …",noFields:"На тази страница не са открити полета за попълване."},
+"Bulgarisch – Latinica":{original:"Originalen formular",translation:"Prevod",instruction:"Kakvo tryabva da vavedete tuk",page:"Stranitsa",of:"ot",prev:"← Predishna stranitsa",next:"Sledvashta stranitsa →",analyzing:"Formulyarat se analizira …",creating:"Sazdava se popolneniyat PDF …",noFields:"Na tazi stranitsa ne sa otkriti poleta za popolvane."},
+"Türkisch":{original:"Orijinal form",translation:"Çeviri",instruction:"Buraya ne girilmeli",page:"Sayfa",of:"/",prev:"← Önceki sayfa",next:"Sonraki sayfa →",analyzing:"Form analiz ediliyor …",creating:"Doldurulmuş PDF oluşturuluyor …",noFields:"Bu sayfada doldurulabilir alan bulunamadı."},
+"Slowenisch":{original:"Izvirni obrazec",translation:"Prevod",instruction:"Kaj vnesete tukaj",page:"Stran",of:"od",prev:"← Prejšnja stran",next:"Naslednja stran →",analyzing:"Obrazec se analizira …",creating:"Ustvarja se izpolnjen PDF …",noFields:"Na tej strani ni bilo najdenih polj za izpolnjevanje."},
+"Portugiesisch":{original:"Formulário original",translation:"Tradução",instruction:"O que inserir aqui",page:"Página",of:"de",prev:"← Página anterior",next:"Página seguinte →",analyzing:"O formulário está a ser analisado …",creating:"A criar o PDF preenchido …",noFields:"Não foram encontrados campos preenchíveis nesta página."},
+"Niederländisch":{original:"Origineel formulier",translation:"Vertaling",instruction:"Wat hier moet worden ingevuld",page:"Pagina",of:"van",prev:"← Vorige pagina",next:"Volgende pagina →",analyzing:"Het formulier wordt geanalyseerd …",creating:"De ingevulde PDF wordt gemaakt …",noFields:"Op deze pagina zijn geen invulbare velden gevonden."},
+"Russisch":{original:"Оригинальная форма",translation:"Перевод",instruction:"Что здесь нужно указать",page:"Страница",of:"из",prev:"← Предыдущая страница",next:"Следующая страница →",analyzing:"Форма анализируется …",creating:"Создаётся заполненный PDF …",noFields:"На этой странице не найдены поля для заполнения."}
+};
 const PDF_LABELS={"Deutsch":"PDF-Datei erstellen","Serbisch":"Kreiraj PDF fajl","Serbisch – Kyrillisch":"Креирај PDF датотеку","Bosnisch":"Kreiraj PDF datoteku","Kroatisch":"Izradi PDF datoteku","Englisch":"Create PDF file","Italienisch":"Crea file PDF","Französisch":"Créer un fichier PDF","Albanisch":"Krijo skedar PDF","Polnisch":"Utwórz plik PDF","Slowakisch":"Vytvoriť PDF súbor","Rumänisch":"Creează fișier PDF","Spanisch":"Crear archivo PDF","Griechisch":"Δημιουργία αρχείου PDF","Ungarisch":"PDF-fájl létrehozása","Tschechisch":"Vytvořit soubor PDF","Mazedonisch":"Креирај PDF-датотека","Mazedonisch – Latinica":"Kreiraj PDF-datoteka","Bulgarisch":"Създай PDF файл","Bulgarisch – Latinica":"Sazday PDF fayl","Türkisch":"PDF dosyası oluştur","Slowenisch":"Ustvari PDF-datoteko","Portugiesisch":"Criar ficheiro PDF","Niederländisch":"PDF-bestand maken","Russisch":"Создать PDF-файл"};
 function ui(){const l=currentUiLanguage||langSel.value;if(langSel.value!==l)langSel.value=l;refreshLanguageOptions(l);const t=LANGS[l]||LANGS.Deutsch;document.documentElement.lang=LOCALE_MAP[l]||"de";
 document.getElementById("translationLanguage").value=l;set("subtitle",t.sub);set("intro",t.info||t.sub);set("languageLabel",localizedLanguageName(l,l));set("documentTitle",t.doc);set("docLabel",t.doc);set("documentFileButton",t.choose);set("documentLangLabel",localizedLanguageName(l,l));set("documentLangNotice",localizedLanguageName(l,l));
@@ -117,17 +146,158 @@ function actions(resultId){const t=LANGS[currentUiLanguage||langSel.value]||LANG
 function showResult(id,html){const e=document.getElementById(id);e.innerHTML=html+actions(id);e.scrollIntoView({behavior:"smooth",block:"start"})}
 function closePrintPreview(){const o=document.getElementById("printPreview");o.innerHTML="";o.className="hidden"}
 function openPrintPreview(resultId){const src=document.getElementById(resultId);const pages=[...src.querySelectorAll(".a4-page")];if(!pages.length)return;const lang=currentUiLanguage||langSel.value;const t=LANGS[lang]||LANGS.Deutsch;const preview=pages.map(p=>`<article class="a4-page">${p.innerHTML}</article>`).join("");const o=document.getElementById("printPreview");o.className="";o.innerHTML=`<div class="print-overlay"><div class="print-box"><div class="print-head"><strong>📄 ${esc(PDF_LABELS[lang]||t.a4)}</strong><button type="button" onclick="closePrintPreview()">✕</button></div><div class="print-preview-scroll">${preview}</div><div class="print-actions"><button type="button" class="secondary" onclick="closePrintPreview()">✕ ${esc(t.close)}</button><button type="button" onclick="downloadResultPdf('${resultId}')">📥 ${esc(PDF_LABELS[lang]||t.a4)}</button></div></div></div>`}
-async function downloadResultPdf(resultId){const src=document.getElementById(resultId);const pages=[...src.querySelectorAll(".a4-page")];if(!pages.length)return;if(typeof html2pdf!=="function"){alert("PDF-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen.");return}const wrapper=document.createElement("div");wrapper.style.background="#fff";wrapper.style.width="210mm";wrapper.style.margin="0";pages.forEach(p=>{const clone=p.cloneNode(true);clone.style.margin="0";clone.style.boxShadow="none";clone.style.border="0";wrapper.appendChild(clone)});document.body.appendChild(wrapper);try{await html2pdf().set({margin:0,filename:"SwissHelper_Ergebnis.pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff"},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],before:".a4-page + .a4-page"}}).from(wrapper).save()}finally{wrapper.remove()}}
+async function downloadResultPdf(resultId){
+  const src=document.getElementById(resultId);
+  const pages=[...src.querySelectorAll(".a4-page")];
+  if(!pages.length)return;
+  if(typeof html2pdf!=="function"){alert("PDF-Funktion konnte nicht geladen werden. Bitte Internetverbindung prüfen.");return}
+  const wrapper=document.createElement("div");
+  wrapper.style.background="#fff"; wrapper.style.width="210mm"; wrapper.style.margin="0"; wrapper.style.padding="0";
+  pages.forEach((p,i)=>{
+    const clone=p.cloneNode(true);
+    clone.style.width="210mm"; clone.style.height="297mm"; clone.style.minHeight="297mm";
+    clone.style.boxSizing="border-box"; clone.style.margin="0"; clone.style.padding="18mm";
+    clone.style.border="0"; clone.style.boxShadow="none"; clone.style.breakAfter=i<pages.length-1?"page":"auto";
+    clone.style.pageBreakAfter=i<pages.length-1?"always":"auto";
+    wrapper.appendChild(clone);
+  });
+  document.body.appendChild(wrapper);
+  try{
+    await html2pdf().set({
+      margin:0,filename:"SwissHelper_Ergebnis.pdf",
+      image:{type:"jpeg",quality:0.98},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false},
+      jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
+      pagebreak:{mode:["css","legacy"]}
+    }).from(wrapper).save();
+  }finally{wrapper.remove()}
+}
 function resultSection(title,content){return `<section class="section"><h3>${esc(title)}</h3>${content}</section>`}
 function links(forms){return (forms||[]).map(f=>`<a class="form-link" href="${esc(f.url)}" target="_blank" rel="noopener">📥 ${esc(f.name)}</a>`).join("")}
 
 document.getElementById("analyzeButton").onclick=async()=>{const f=document.getElementById("documentFile").files[0];const t=LANGS[langSel.value]||LANGS.Deutsch;if(!f){alert(t.choose);return}const fd=new FormData();fd.append("document",f);fd.append("language",langSel.value);try{const d=await postForm("/analyze",fd);const follow=`<div class="actions"><button type="button" onclick="document.getElementById('formModule').scrollIntoView({behavior:'smooth'})">${esc(t.formfill)}</button><button type="button" onclick="document.getElementById('translationOpenButton').click();document.getElementById('translationModule').scrollIntoView({behavior:'smooth'})">${esc(t.translation)}</button></div>`;showResult("analyzeResult",`<div class="a4-page"><h2>${esc(d.document_type||t.result)}</h2>${resultSection(t.sender||"",`<p>${esc(d.sender||"—")}</p>`)}${resultSection(t.purpose,`<p>${esc(d.topic||"—")}</p>`)}${resultSection(t.next,list(d.next_steps))}${resultSection(t.required,list(d.required_documents))}${resultSection(t.notes,list(d.warnings))}<p>${esc(d.simple_explanation||"")}</p>${follow}</div>`)}catch(e){alert(e.message)}};
 
 document.getElementById("translationOpenButton").onclick=()=>document.getElementById("translationModule").classList.remove("hidden");
-document.getElementById("translateButton").onclick=async()=>{const f=document.getElementById("translationFile").files[0];const t=LANGS[langSel.value]||LANGS.Deutsch;if(!f){alert(t.choose);return}const fd=new FormData();fd.append("translationFile",f);fd.append("target_language",document.getElementById("translationLanguage").value);fd.append("source_country",document.getElementById("sourceCountry").value);fd.append("target_country",document.getElementById("targetCountry").value);fd.append("purpose",document.getElementById("translationPurpose").value);try{const d=await postForm("/translate-document",fd);showResult("translationResult",`<div class="a4-page"><h2>${esc(d.title||t.translationPage)}</h2><h3>${esc(t.translationPage)}</h3><div style="white-space:pre-wrap">${esc(d.translation||"")}</div></div><div class="a4-page"><h2>${esc(d.legal_title||t.page2)}</h2><p>${esc(d.legal_requirements||"")}</p><h3>${esc(t.next)}</h3><ul>${list(d.next_steps)}</ul><h3>${esc(d.source_title||t.sourceInfo)}</h3><ul class="source-list">${list(d.sources)}</ul></div>`)}catch(e){alert(e.message)}};
+document.getElementById("translateButton").onclick=async()=>{
+  const f=document.getElementById("translationFile").files[0]; const l=document.getElementById("translationLanguage").value; const t=LANGS[langSel.value]||LANGS.Deutsch;
+  if(!f){alert(t.choose);return}
+  const fd=new FormData(); fd.append("translationFile",f); fd.append("target_language",l); fd.append("source_country",document.getElementById("sourceCountry").value); fd.append("target_country",document.getElementById("targetCountry").value); fd.append("purpose",document.getElementById("translationPurpose").value);
+  document.getElementById('translationResult').innerHTML=`<div class="form-status">⏳ ${esc((FORM_UI[l]||FORM_UI.Deutsch).analyzing||'Dokument wird verarbeitet …')}</div>`;
+  try{
+    const d=await postForm("/translate-document",fd); const pages=d.translation_pages||[d.translation||""]; const original=d.original_pdf||""; const count=Number(d.original_page_count||1);
+    let html='';
+    for(let i=1;i<=count;i++){
+      html+=`<div class="translation-block"><div class="translation-block-head">Original — ${esc((FORM_UI[l]||FORM_UI.Deutsch).page||'Seite')} ${i} ${esc((FORM_UI[l]||FORM_UI.Deutsch).of||'von')} ${count}</div><div class="translation-original">${original?`<iframe title="Original Seite ${i}" src="data:application/pdf;base64,${original}#page=${i}"></iframe>`:'<div class="form-page-empty">Original-PDF kann hier nicht angezeigt werden.</div>'}</div></div>`;
+    }
+    pages.forEach((txt,i)=>{html+=`<article class="translation-page"><h2>${esc(d.title||t.translationPage||'Übersetzung')}</h2><h3>${esc((FORM_UI[l]||FORM_UI.Deutsch).page||'Seite')} ${i+1} – ${esc(t.translationPage||'Übersetzung')}</h3><div style="white-space:pre-wrap">${esc(txt||'')}</div></article>`});
+    html+=`<article class="translation-page"><h2>${esc(d.legal_title||'Praktische Erklärung')}</h2><p>${esc(d.legal_requirements||'')}</p><h3>${esc(d.next_title||t.next)}</h3><ul>${list(d.next_steps)}</ul><h3>${esc(d.source_title||t.sourceInfo||'Quellen')}</h3><ul class="source-list">${list(d.sources)}</ul><button type="button" class="translation-download" id="downloadTranslationPdf">📥 ${esc(t.a4||'PDF erstellen')}</button></article>`;
+    document.getElementById('translationResult').innerHTML=html;
+    document.getElementById('downloadTranslationPdf').onclick=async()=>{
+      const b=document.getElementById('downloadTranslationPdf'); b.disabled=true; b.textContent='⏳ '+((FORM_UI[l]||FORM_UI.Deutsch).creating||'PDF wird erstellt …');
+      try{const fd2=new FormData();fd2.append('translationFile',f);fd2.append('translation_payload',JSON.stringify({...d,target_language:l}));const r=await fetch('/translation-pdf',{method:'POST',body:fd2});if(!r.ok){let msg='PDF konnte nicht erstellt werden.';try{const x=await r.json();msg=x.error||msg}catch(e){}throw Error(msg)}const blob=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SwissHelper_Original_Uebersetzung_Erklaerung.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}catch(e){alert(e.message)}finally{b.disabled=false;b.textContent='📥 '+(t.a4||'PDF erstellen')}};
+  }catch(e){alert(e.message);document.getElementById('translationResult').innerHTML=''}
+};
 document.getElementById("newTranslationButton").onclick=()=>resetModule("translationModule");
 
-async function formAction(action){const f=document.getElementById("formFile").files[0];const l=currentUiLanguage||langSel.value;const t=LANGS[l]||LANGS.Deutsch;if(!f){alert(t.choose);return}const fd=new FormData();fd.append("form",f);fd.append("language",l);fd.append("action",action);try{const d=await postForm("/form-helper",fd);const meta=d.pdf_meta||{fillable:false,fields:[]};const aiByField=Object.fromEntries((d.form_fields||[]).map(x=>[x.field,x]));let fieldsHtml="";if(meta.fillable&&meta.fields.length){fieldsHtml=meta.fields.map(x=>{const ai=aiByField[x.name]||{};const label=ai.explanation?`${x.label} – ${ai.explanation}`:x.label;let control="";if(x.type==="checkbox"){control=`<label><input type="checkbox" data-pdf-field="${esc(x.name)}" data-pdf-type="checkbox" data-pdf-on="${esc((x.options&&x.options[0]&&x.options[0].value)||"/Yes")}"> ${esc(label)}</label>`}else if(x.type==="radio"||x.type==="choice"){control=`<label>${esc(label)}<select data-pdf-field="${esc(x.name)}" data-pdf-type="choice"><option value="">—</option>${(x.options||[]).map(o=>`<option value="${esc(o.value)}">${esc(o.label)}</option>`).join("")}</select></label>`}else if(x.type!=="button"){control=`<label>${esc(label)}<input type="text" data-pdf-field="${esc(x.name)}" data-pdf-type="text" value="${esc(x.value||"")}" placeholder="${esc(ai.missing_information||"")}"></label>`}else{return ""}return `<div class="item"><div class="small">${esc(x.label)}</div>${control}</div>`}).join("")}else{fieldsHtml=(d.form_fields||[]).map((x,i)=>`<div class="item"><b>${esc(x.field)}</b><p>${esc(x.explanation)}</p><p><b>${esc(t.required)}:</b> ${esc(x.what_to_enter)}</p><label>${esc(t.notes)}<input type="text" data-ai-field-index="${i}" placeholder="${esc(x.missing_information||"")}"></label></div>`).join("")};const fillButton=meta.fillable?`<div class="actions"><button id="downloadFilled" type="button">${esc(t.fillPdf)}</button></div>`:"";const metaNotice=meta.fillable?`<div class="notice"><b>${esc(t.original1to1)}</b><br>${esc(t.original1to1Desc)}</div>`:`<p class="small">${esc(t.scanNotice)}</p>`;showResult("formResult",`<div class="a4-page"><h2>${esc(d.document_type||t.formResult)}</h2><p>${esc(d.simple_explanation||"")}</p>${metaNotice}<h3>${esc(t.next)}</h3><ul>${list(d.next_steps)}</ul><h3>${esc(t.required)}</h3><ul>${list(d.required_documents)}</ul>${fieldsHtml}${fillButton}</div>`);if(meta.fillable){document.getElementById("downloadFilled").onclick=async()=>{const values={};document.querySelectorAll("#formResult [data-pdf-field]").forEach(el=>{values[el.dataset.pdfField]=el.dataset.pdfType==="checkbox"?(el.checked?(el.dataset.pdfOn||"/Yes"):"/Off"):el.value});const fd2=new FormData();fd2.append("form",f);fd2.append("field_values",JSON.stringify(values));const r=await fetch("/fill-form",{method:"POST",body:fd2});if(!r.ok){let msg=t.scanNotice;try{const x=await r.json();msg=x.error||msg}catch(e){}alert(msg);return}const blob=await r.blob();const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="SwissHelper_Originalformular_ausgefuellt.pdf";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}}}catch(e){alert(e.message)}}
+function normalizeFieldKey(v){return String(v||"").trim().toLowerCase().replace(/[\s_\-]+/g,"");}
+function findAiField(x,aiFields){
+  const byPdf=aiFields.find(a=>a.pdf_field && a.pdf_field===x.name); if(byPdf)return byPdf;
+  const byField=aiFields.find(a=>a.field===x.name); if(byField)return byField;
+  const nk=normalizeFieldKey(x.name), nl=normalizeFieldKey(x.label);
+  return aiFields.find(a=>normalizeFieldKey(a.field)===nk || normalizeFieldKey(a.field)===nl || normalizeFieldKey(a.explanation)===nl) || null;
+}
+function optionTranslation(ai, opt){
+  const raw=String(opt.label||opt.value||"");
+  const hit=(ai&&ai.options||[]).find(o=>String(o.original||"")===String(opt.value||"") || String(o.original||"").replace(/^\//,"")===raw);
+  if(hit&&hit.translation) return hit.translation;
+  if(raw.includes("\ufffd")){
+    const aiHit=(ai&&ai.options||[]).find(o=>!String(o.original||"").includes("\ufffd") && String(o.original||"").length>0);
+    if(aiHit&&aiHit.translation) return aiHit.translation;
+  }
+  return raw;
+}
+function renderFormField(x,ai,t,idx){
+  ai=ai||{};
+  const rawOriginal=x.label||x.name;
+  const aiOriginal=ai.field||"";
+  const original=(rawOriginal && !String(rawOriginal).includes("\ufffd"))?rawOriginal:(aiOriginal||rawOriginal||x.name);
+  const translation=ai.translation||ai.field||ai.explanation||original;
+  const instruction=ai.what_to_enter||t.instruction;
+  let control="";
+  if(x.type==="checkbox"){
+    const on=(x.options&&x.options[0]&&x.options[0].value)||"/Yes";
+    const label=optionTranslation(ai,x.options&&x.options[0]||{value:on,label:on});
+    control=`<label class="form-option"><input type="checkbox" data-pdf-field="${esc(x.name)}" data-pdf-type="checkbox" data-pdf-on="${esc(on)}"> ${esc(label)}</label>`;
+  }else if(x.type==="radio"){
+    const opts=x.options||[];
+    control=opts.length?opts.map((o,j)=>`<label class="form-option"><input type="radio" name="radio_${esc(x.name)}" data-pdf-field="${esc(x.name)}" data-pdf-type="radio" data-pdf-value="${esc(o.value)}" ${String(x.value||"")===String(o.value||"")?"checked":""}> ${esc(optionTranslation(ai,o))}</label>`).join(""):"";
+  }else if(x.type==="choice"){
+    control=`<select data-pdf-field="${esc(x.name)}" data-pdf-type="choice"><option value="">—</option>${(x.options||[]).map(o=>`<option value="${esc(o.value)}" ${String(x.value||"")===String(o.value||"")?"selected":""}>${esc(optionTranslation(ai,o))}</option>`).join("")}</select>`;
+  }else if(x.type!=="button"){
+    control=`<input type="text" data-pdf-field="${esc(x.name)}" data-pdf-type="text" value="${esc(x.value||"")}" placeholder="${esc(ai.missing_information||"")}">`;
+  }
+  return `<div class="form-field"><div class="form-original-label">${esc(original)}</div><div class="form-translation">${esc(translation)}</div><p class="form-instruction">${esc(instruction)}</p>${control}</div>`;
+}
+function buildFormPages(d,l,focusFill){
+  const t=LANGS[l]||LANGS.Deutsch, f=FORM_UI[l]||FORM_UI.Deutsch, meta=d.pdf_meta||{};
+  const aiFields=d.form_fields||[];
+  const aiFor=(x)=>findAiField(x,aiFields);
+  const pages=meta.pages&&meta.pages.length?meta.pages.map(p=>({page:p.page,fields:p.fields||[]})):[{page:1,fields:[]}];
+  if(!meta.pages||!meta.pages.length){aiFields.forEach(a=>{const p=Math.max(1,Number(a.page)||1);let pg=pages.find(x=>x.page===p);if(!pg){pg={page:p,fields:[]};pages.push(pg)}pg.fields.push({name:a.pdf_field||a.field,label:a.field,type:"text",value:"",options:[]})})}
+  pages.sort((a,b)=>a.page-b.page);
+  const html=pages.map((pg,i)=>{
+    const b64=meta.full_pdf||"";
+    const original=b64?`<iframe title="${esc(f.page+" "+pg.page)}" src="data:application/pdf;base64,${b64}#page=${pg.page}"></iframe>`:`<div class="form-page-empty">${esc(t.scanNotice||f.noFields)}</div>`;
+    const fields=pg.fields.map((x,j)=>renderFormField(x,aiFor(x),f,j)).join("");
+    return `<article class="form-page" data-form-page="${pg.page}"><div class="form-original"><div class="form-original-head">${esc(f.original)} — ${esc(f.page)} ${pg.page} ${esc(f.of)} ${pages.length}</div>${original}</div><div class="form-help"><div class="form-help-head">${esc(f.translation)} &amp; ${esc(t.formfill||f.instruction)}</div><div class="form-help-body">${fields||`<div class="form-page-empty">${esc(f.noFields)}</div>`}</div></div></article>`;
+  }).join("");
+  const status=`<div class="form-status" id="formStatus">${esc(f.page)} 1 ${esc(f.of)} ${pages.length}</div>`;
+  const actions=`<div class="form-page-actions"><button type="button" class="secondary" id="formPrev">${esc(f.prev)}</button><button type="button" id="formNext">${esc(f.next)}</button></div>`;
+  return `<div id="formPagesContainer">${status}${html}${actions}</div>`;
+}
+function wireFormPages(d,l,focusFill){
+  const f=FORM_UI[l]||FORM_UI.Deutsch, pages=[...document.querySelectorAll('#formPagesContainer .form-page')]; if(!pages.length)return;
+  let current=0;
+  const update=()=>{pages.forEach((p,i)=>p.style.display=i===current?"grid":"none");const st=document.getElementById('formStatus');if(st)st.textContent=`${f.page} ${current+1} ${f.of} ${pages.length}`;document.getElementById('formPrev').disabled=current===0;document.getElementById('formNext').disabled=current===pages.length-1;};
+  document.getElementById('formPrev').onclick=()=>{if(current>0){current--;update();window.scrollTo({top:document.getElementById('formPagesContainer').offsetTop-20,behavior:'smooth'});}};
+  document.getElementById('formNext').onclick=()=>{if(current<pages.length-1){current++;update();window.scrollTo({top:document.getElementById('formPagesContainer').offsetTop-20,behavior:'smooth'});}};
+  update();
+  if(focusFill){
+    const first=document.querySelector('#formPagesContainer input[data-pdf-field], #formPagesContainer select[data-pdf-field], #formPagesContainer textarea[data-pdf-field]');
+    if(first){
+      const pageEl=first.closest('.form-page');
+      current=pageEl?Math.max(0,Number(pageEl.dataset.formPage)-1):0;
+      update();
+      setTimeout(()=>first.focus(),150);
+    }
+  }
+}
+async function formAction(action){
+  const f=document.getElementById("formFile").files[0]; const l=currentUiLanguage||langSel.value; const t=LANGS[l]||LANGS.Deutsch; const fu=FORM_UI[l]||FORM_UI.Deutsch;
+  if(!f){alert(t.choose);return}
+  const buttons=[document.getElementById('formExplain'),document.getElementById('formFill'),document.getElementById('formMissing')]; buttons.forEach(b=>b.disabled=true);
+  document.getElementById('formResult').innerHTML=`<div class="form-status">⏳ ${esc(fu.analyzing)}</div>`;
+  const fd=new FormData(); fd.append("form",f); fd.append("language",l); fd.append("action",action);
+  try{
+    const d=await postForm("/form-helper",fd); const meta=d.pdf_meta||{fillable:false,fields:[],pages:[],page_pdfs:[],full_pdf:""};
+    const compactNext=(d.next_steps||[]).slice(0,6), compactDocs=(d.required_documents||[]).slice(0,6);
+    const docs=`<article class="a4-page"><h2>${esc(d.document_type||t.formResult)}</h2><p>${esc(d.simple_explanation||'')}</p>${d.next_steps?.length?`<h3>${esc(t.next)}</h3><ul>${list(compactNext)}</ul>`:''}${d.required_documents?.length?`<h3>${esc(t.required)}</h3><ul>${list(compactDocs)}</ul>`:''}</article>`;
+    const notice=meta.fillable?`<div class="notice"><b>${esc(t.original1to1)}</b><br>${esc(t.original1to1Desc)}</div>`:`<div class="notice">${esc(t.scanNotice||'Das Original wird angezeigt. Automatisches Ausfüllen ist nur möglich, wenn echte PDF-Felder vorhanden sind.')}</div>`;
+    document.getElementById('formResult').innerHTML=docs+notice+buildFormPages(d,l,action==='fill');
+    wireFormPages(d,l,action==='fill');
+    if(meta.fillable){
+      const btn=document.createElement('button'); btn.id='downloadFilled'; btn.type='button'; btn.textContent='📥 '+(t.fillPdf||'Ausgefülltes PDF erstellen'); btn.style.margin='14px auto'; btn.style.display='block';
+      document.getElementById('formResult').appendChild(btn);
+      btn.onclick=async()=>{
+        const values={}; document.querySelectorAll('#formResult [data-pdf-field]').forEach(el=>{const name=el.dataset.pdfField;if(el.dataset.pdfType==='checkbox')values[name]=el.checked?(el.dataset.pdfOn||'/Yes'):'/Off';else if(el.dataset.pdfType==='radio'){if(el.checked)values[name]=el.dataset.pdfValue;}else values[name]=el.value;});
+        btn.disabled=true; btn.textContent='⏳ '+fu.creating;
+        const fd2=new FormData(); fd2.append('form',f); fd2.append('field_values',JSON.stringify(values));
+        try{const r=await fetch('/fill-form',{method:'POST',body:fd2});if(!r.ok){let msg=fu.noFields;try{const x=await r.json();msg=x.error||msg}catch(e){}throw Error(msg)}const blob=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SwissHelper_Originalformular_ausgefuellt.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent='📥 '+(t.fillPdf||'Ausgefülltes PDF erstellen')}
+      };
+    }
+  }catch(e){alert(e.message);document.getElementById('formResult').innerHTML=''} finally{buttons.forEach(b=>b.disabled=false)}
+}
+
 document.getElementById("formExplain").onclick=()=>formAction("explain");document.getElementById("formFill").onclick=()=>formAction("fill");document.getElementById("formMissing").onclick=()=>formAction("missing");document.getElementById("newForm").onclick=()=>resetModule("formModule");
 
 async function runHelper(){const payload={source_country:document.getElementById("countryOrigin").value,target_country:document.getElementById("countryTarget").value,source_place:document.getElementById("countryOriginPlace").value,target_place:document.getElementById("countryTargetPlace").value,nationality:document.getElementById("countryNationality").value,purpose:document.getElementById("countryPurpose").value,language:langSel.value};try{const d=await postForm("/country-helper",new Blob([JSON.stringify(payload)],{type:"application/json"}));showResult("countryResult",`<div class="a4-page"><h2>${esc(d.title)}</h2><p>${esc(d.summary)}</p><h3>${esc(d.next_title||LANGS[langSel.value].next)}</h3><ul>${list(d.steps)}</ul><h3>${esc(d.docs_title||LANGS[langSel.value].required)}</h3><ul>${list(d.documents)}</ul>${d.forms?.length?`<h3>${esc(LANGS[langSel.value].forms)}</h3>${links(d.forms)}`:''}<h3>${esc(d.source_title||LANGS[langSel.value].source)}</h3><ul>${list(d.sources)}</ul></div>`)}catch(e){alert(e.message)}}

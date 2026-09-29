@@ -1,32 +1,13 @@
-# SwissHelper AI V26 – Korrigierter Gesamtstand
+# SwissHelper AI V26 – Formular/Übersetzung Fix
 
-Diese Version wurde nicht nur an einer einzelnen Stelle geändert, sondern als Gesamtstand geprüft.
+Diese Version konzentriert die Formular- und Übersetzungsfunktionen auf das gewünschte Verhalten:
 
-## Sprachsteuerung
-- 25 UI-Sprachen.
-- Die gewählte Sprache steuert die komplette sichtbare Oberfläche.
-- Serbisch: Lateinisch und Kyrillisch.
-- Mazedonisch: Kyrillisch und Latinica.
-- Bulgarisch: Kyrillisch und Latinica.
-- Sprachliste und Ländernamen werden in der ausgewählten Sprache angezeigt.
-- Region/Stadt-Bezeichnungen bleiben konsistent mit der gewählten UI-Sprache.
+- Original-Behördenformular bleibt als echtes PDF und wird seitenweise im A4-Format angezeigt.
+- Kurze Feldhilfe: Originalbezeichnung → Übersetzung → konkrete Eingabe.
+- Bei echten AcroForm-PDFs wird das Originalformular direkt befüllt; Seiten und Layout bleiben erhalten.
+- XFA-Formulare werden nicht beschädigt überschrieben.
+- Professionelle Übersetzung zeigt Originalseiten, seitenbezogene Übersetzung und eine kurze praktische Erklärung.
+- Kombinierte Übersetzungs-PDF: Original → Übersetzung → praktische Erklärung.
+- Unicode-Unterstützung für lateinische, kyrillische und griechische Texte.
 
-## A4 / PDF
-- Ergebnisblöcke sind für A4 aufgebaut.
-- Der PDF-Button erzeugt die PDF-Datei direkt als Download; es wird kein Browser-Druckdialog benötigt.
-- Die PDF-Erzeugung verwendet A4 (210 × 297 mm) und getrennte A4-Ergebnisblöcke.
-
-## Formular-Helfer
-- Ein echtes ausfüllbares PDF wird als Original-PDF verarbeitet.
-- Die Originalseiten, Seitengrößen, Feldnamen und Formularstruktur bleiben erhalten.
-- Es werden nur die echten PDF-Formularfelder befüllt.
-- Das ausgefüllte Ergebnis wird direkt als PDF heruntergeladen.
-- Bei nicht ausfüllbaren/scannbaren Formularen wird keine Ersatzvorlage erzeugt; stattdessen bleibt die Feld-für-Feld-Hilfe verfügbar.
-- Die Erklärung kann in der ausgewählten UI-Sprache erfolgen; das Originalformular selbst bleibt in seiner Originalsprache.
-
-## Technischer Test
-Die AcroForm-Logik wurde mit einem mehrseitigen A4-Testformular geprüft: Seitenanzahl, A4-Seitengröße und PDF-Feldnamen blieben beim Befüllen erhalten.
-
-## Render
-- Dockerfile und render.yaml sind enthalten.
-- `OPENAI_API_KEY` bleibt ausschließlich als Render-Umgebungsvariable vorgesehen und darf nicht in den Quellcode eingetragen werden.
+Deployment: GitHub → Render (Docker).
